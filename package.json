@@ -1,0 +1,30 @@
+{
+  "name": "ecommerce-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "repository": "git@github.com:dreadwing5/ecommerce-backend.git",
+  "author": "dreadwing5 <sachinspyk@outlook.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "data:import": "node seeder",
+    "data:destroy": "node seeder -d"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.3"
+  },
+  "devDependencies": {
+    "colors": "^1.4.0",
+    "nodemon": "^3.0.1"
+  }
+}
