@@ -1,0 +1,92 @@
+
+CREATE TABLE Users (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL,
+    Phone VARCHAR(255),
+    Gender Varchar(255),
+    
+    IsAdmin BOOLEAN DEFAULT FALSE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Product Table
+CREATE TABLE Products (
+    ProductID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    Name VARCHAR(255) NOT NULL,
+    Image VARCHAR(255) NOT NULL,
+    Brand VARCHAR(100) NOT NULL,
+    Category VARCHAR(100) NOT NULL,
+    Description TEXT NOT NULL,
+    Rating DECIMAL(3,2) DEFAULT 0 NOT NULL,
+    NumReviews INT DEFAULT 0 NOT NULL,
+    Price DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
+    CountInStock INT DEFAULT 0 NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+-- Review Table (related to a Product and a User)
+CREATE TABLE Reviews (
+    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
+    ProductID INT,
+    UserID INT,
+    Name VARCHAR(255) NOT NULL,
+    Rating DECIMAL(3,2) NOT NULL,
+    Comment TEXT NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+-- Order Table
+CREATE TABLE Orders (
+    OrderID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    ShippingAddress VARCHAR(255) NOT NULL,
+    City VARCHAR(100) NOT NULL,
+    PostalCode VARCHAR(10) NOT NULL,
+    Country VARCHAR(100) NOT NULL,
+    PaymentMethod VARCHAR(100) NOT NULL,
+    PaymentResultID VARCHAR(255),
+    ItemsPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
+    TaxPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
+    ShippingPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
+    TotalPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
+    IsPaid BOOLEAN DEFAULT FALSE,
+    PaidAt DATE,
+    IsDelivered BOOLEAN DEFAULT FALSE,
+    DeliveredAt DATE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+-- Order Items Table (many items in an order)
+CREATE TABLE OrderItems (
+    OrderItemID INT AUTO_INCREMENT PRIMARY KEY,
+    OrderID INT,
+    Name VARCHAR(255) NOT NULL,
+    Quantity INT NOT NULL,
+    Image VARCHAR(255) NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    ProductID INT,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+-- Payment Results Table (related to an Order, assuming you can have multiple results per order)
+CREATE TABLE PaymentResults (
+    PaymentResultID INT AUTO_INCREMENT PRIMARY KEY,
+    ID VARCHAR(255),
+    Status VARCHAR(100),
+    UpdateTime VARCHAR(255),
+    EmailAddress VARCHAR(255),
+    OrderID INT,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+);
