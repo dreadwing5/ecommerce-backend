@@ -165,21 +165,22 @@ const getUserById = asyncHandler(async (req, res) => {
 // @route   PUT /api/users/:id
 // @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
-	const [users] = await db.query("SELECT * FROM Users WHERE UserID = ?", [
-		req.params.id,
+	console.log("HI");
+	const [users] = await db.query("SELECT * FROM Users WHERE Email = ?", [
+		req.params.email,
 	]);
+	console.log(users);
 
 	if (!users.length) {
 		res.status(404);
 		throw new Error("User not found");
 	}
 
-	const { name, email, password, isAdmin } = req.body;
+	const { gender, phone } = req.body;
+
 	const updatedFields = {
-		Name: name || users[0].Name,
-		Email: email || users[0].Email,
-		Password: password ? await bcrypt.hash(password, 10) : users[0].Password,
-		IsAdmin: isAdmin !== undefined ? isAdmin : users[0].IsAdmin,
+		Gender: gender || users[0].Gender,
+		Phone: phone || users[0].Phone,
 	};
 
 	await db.query("UPDATE Users SET ? WHERE UserID = ?", [
