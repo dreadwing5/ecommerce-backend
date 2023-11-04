@@ -1,92 +1,83 @@
+CREATE TABLE
+    Users (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        isAdmin TINYINT NOT NULL DEFAULT 0,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
 
-CREATE TABLE Users (
-    UserID INT AUTO_INCREMENT PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) NOT NULL UNIQUE,
-    Password VARCHAR(255) NOT NULL,
-    Phone VARCHAR(255),
-    Gender Varchar(255),
-    
-    IsAdmin BOOLEAN DEFAULT FALSE,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE TABLE
+    Products (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        image VARCHAR(255) NOT NULL,
+        brand VARCHAR(255) NOT NULL,
+        category VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        rating FLOAT NOT NULL DEFAULT 0,
+        numReviews INT NOT NULL DEFAULT 0,
+        price DECIMAL(19, 4) NOT NULL DEFAULT 0,
+        countInStock INT NOT NULL DEFAULT 0,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
 
--- Product Table
-CREATE TABLE Products (
-    ProductID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT,
-    Name VARCHAR(255) NOT NULL,
-    Image VARCHAR(255) NOT NULL,
-    Brand VARCHAR(100) NOT NULL,
-    Category VARCHAR(100) NOT NULL,
-    Description TEXT NOT NULL,
-    Rating DECIMAL(3,2) DEFAULT 0 NOT NULL,
-    NumReviews INT DEFAULT 0 NOT NULL,
-    Price DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
-    CountInStock INT DEFAULT 0 NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
-);
+CREATE TABLE
+    Reviews (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        rating INT NOT NULL,
+        comment TEXT NOT NULL,
+        userId INT NOT NULL,
+        productId INT NOT NULL,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (userId) REFERENCES Users (id),
+        FOREIGN KEY (productId) REFERENCES Products (id)
+    );
 
--- Review Table (related to a Product and a User)
-CREATE TABLE Reviews (
-    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
-    ProductID INT,
-    UserID INT,
-    Name VARCHAR(255) NOT NULL,
-    Rating DECIMAL(3,2) NOT NULL,
-    Comment TEXT NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
-);
+CREATE TABLE
+    Orders (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        userId INT NOT NULL,
+        shippingAddress TEXT NOT NULL,
+        paymentMethod VARCHAR(255) NOT NULL,
+        itemsPrice DECIMAL(19, 4) NOT NULL DEFAULT 0.0,
+        taxPrice DECIMAL(19, 4) NOT NULL DEFAULT 0.0,
+        shippingPrice DECIMAL(19, 4) NOT NULL DEFAULT 0.0,
+        totalPrice DECIMAL(19, 4) NOT NULL DEFAULT 0.0,
+        isPaid TINYINT NOT NULL DEFAULT 0,
+        paidAt TIMESTAMP NULL,
+        isDelivered TINYINT NOT NULL DEFAULT 0,
+        deliveredAt TIMESTAMP NULL,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (userId) REFERENCES Users (id)
+    );
 
--- Order Table
-CREATE TABLE Orders (
-    OrderID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT,
-    ShippingAddress VARCHAR(255) NOT NULL,
-    City VARCHAR(100) NOT NULL,
-    PostalCode VARCHAR(10) NOT NULL,
-    Country VARCHAR(100) NOT NULL,
-    PaymentMethod VARCHAR(100) NOT NULL,
-    PaymentResultID VARCHAR(255),
-    ItemsPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
-    TaxPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
-    ShippingPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
-    TotalPrice DECIMAL(10, 2) DEFAULT 0.00 NOT NULL,
-    IsPaid BOOLEAN DEFAULT FALSE,
-    PaidAt DATE,
-    IsDelivered BOOLEAN DEFAULT FALSE,
-    DeliveredAt DATE,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
-);
+CREATE TABLE
+    OrderItems (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        qty INT NOT NULL,
+        image VARCHAR(255) NOT NULL,
+        price DECIMAL(19, 4) NOT NULL,
+        productId INT NOT NULL,
+        orderId INT NOT NULL,
+        FOREIGN KEY (productId) REFERENCES Products (id),
+        FOREIGN KEY (orderId) REFERENCES Orders (id)
+    );
 
--- Order Items Table (many items in an order)
-CREATE TABLE OrderItems (
-    OrderItemID INT AUTO_INCREMENT PRIMARY KEY,
-    OrderID INT,
-    Name VARCHAR(255) NOT NULL,
-    Quantity INT NOT NULL,
-    Image VARCHAR(255) NOT NULL,
-    Price DECIMAL(10, 2) NOT NULL,
-    ProductID INT,
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-);
-
--- Payment Results Table (related to an Order, assuming you can have multiple results per order)
-CREATE TABLE PaymentResults (
-    PaymentResultID INT AUTO_INCREMENT PRIMARY KEY,
-    ID VARCHAR(255),
-    Status VARCHAR(100),
-    UpdateTime VARCHAR(255),
-    EmailAddress VARCHAR(255),
-    OrderID INT,
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
-);
+CREATE TABLE
+    PaymentResults (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        orderId INT NOT NULL,
+        paymentId VARCHAR(255),
+        status VARCHAR(255),
+        updateTime VARCHAR(255),
+        emailAddress VARCHAR(255),
+        FOREIGN KEY (orderId) REFERENCES Orders (id)
+    );
