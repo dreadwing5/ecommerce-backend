@@ -1,5 +1,6 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import generateToken from "../utils/generateToken.js";
+import { sendVerificationEmail } from "../utils/sendEmail.js";
 // import User from "../models/userModel.js";
 import db from "../config/db.js";
 import bcrypt from "bcryptjs";
@@ -63,14 +64,24 @@ const registerUser = asyncHandler(async (req, res) => {
 		email,
 	]);
 
-	generateToken(res, newUser[0].id);
+	const verificationToken = generateToken(res, newUser[0].id);
 
-	res.status(201).json({
-		id: newUser[0].id,
-		name: newUser[0].name,
-		email: newUser[0].email,
-		isAdmin: newUser[0].isAdmin,
-	});
+	try {
+		await sendVerificationEmail(email, verificationToken);
+
+		res.status(201).json({
+			id: newUser[0].id,
+			name: newUser[0].name,
+			email: newUser[0].email,
+			isAdmin: newUser[0].isAdmin,
+			token: verificationToken,
+		});
+	} catch (error) {
+		console.error(error);
+		res
+			.status(500)
+			.json({ error: "Registered, but verification email failed to send." });
+	}
 });
 
 // @desc    Logout user / clear cookie

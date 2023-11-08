@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 dotenv.config();
-import connectDB from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
@@ -28,17 +27,17 @@ app.use("/api/orders", orderRoutes);
 // });
 
 app.get("/", async (req, res) => {
-  try {
-    const [rows, fields] = await db.query("SELECT * FROM Users");
-    console.log(rows, fields);
-  } catch (err) {
-    console.log(err);
-  }
+	try {
+		const [rows, fields] = await db.query("SELECT * FROM Users");
+		console.log(rows, fields);
+	} catch (err) {
+		console.log(err);
+	}
 });
 
 app.use(notFound);
 app.use(errorHandler);
 
 app.listen(port, () =>
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`)
+	console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`)
 );
