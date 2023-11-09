@@ -71,7 +71,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
   try {
     await sendEmail({
-      email: newUser[0].email,
+      from: "hello@minimal.io",
+      to: newUser[0].email,
       subject: "Welcome to Our Platform!",
       message: message,
     });

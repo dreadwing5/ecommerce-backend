@@ -57,7 +57,7 @@ app.post("/api/support/issue", async (req, res) => {
       from: req.body.email,
       to: "hello@minimal.io",
       subject: "Support Issue",
-      html: `<p>You have received a new support issue from ${req.body.email}:</p><p>${req.body.message}</p>`, // If you want to send HTML emails
+      message: `<p>You have received a new support issue from ${req.body.email}:</p><p>${req.body.message}</p>`,
     });
     res.json({ message: "Email sent successfully" });
   } catch (error) {

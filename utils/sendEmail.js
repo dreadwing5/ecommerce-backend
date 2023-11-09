@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const sendEmail = async (options) => {
+  console.log("options", options);
   // 1) Create a transporter
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -15,13 +16,11 @@ const sendEmail = async (options) => {
 
   // 2) Define the email options
   const mailOptions = {
-    from: "Minimal Aura  <hello@minimal.io>",
-    to: options.email,
+    from: options.from,
+    to: options.to,
     subject: options.subject,
-    text: options.message,
-    // html:
+    html: options.message,
   };
-
   // 3) Actually send the email
   await transporter.sendMail(mailOptions);
 };
