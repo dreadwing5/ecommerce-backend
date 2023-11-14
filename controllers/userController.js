@@ -29,6 +29,8 @@ const authUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      is_verified: user.is_verified,
+      token: req.token,
     });
   } else {
     res.status(401);
@@ -40,7 +42,7 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email } = req.body;
 
   const [existingUsers] = await db.query(
     "SELECT * FROM Users WHERE email = ?",
@@ -52,8 +54,9 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  // Hash the password before storing (assuming you're using bcrypt)
-  const hashedPassword = await bcrypt.hash(password, 10);
+  // Generate a temporary password
+  const tempPassword = Math.random().toString(36).slice(-8);
+  const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
   await db.query("INSERT INTO Users (name, email, Password) VALUES (?, ?, ?)", [
     name,
@@ -65,9 +68,9 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
   ]);
 
-  const verificationToken = generateToken(res, newUser[0].id);
+  // const verificationToken = generateToken(res, newUser[0].id);
 
-  const message = `Hello ${newUser[0].name}, welcome to our platform! We are excited to have you on board.`;
+  const message = `Hello ${newUser[0].name}, welcome to our platform! We are excited to have you on board.\nYour temporary password is ${tempPassword}\nPlease log in using this password and update your password after logging in.`;
 
   try {
     await sendEmail({
@@ -82,7 +85,7 @@ const registerUser = asyncHandler(async (req, res) => {
       name: newUser[0].name,
       email: newUser[0].email,
       isAdmin: newUser[0].isAdmin,
-      token: verificationToken,
+      // token: verificationToken,
     });
   } catch (error) {
     console.error(error);
