@@ -85,6 +85,7 @@ const registerUser = asyncHandler(async (req, res) => {
       name: newUser[0].name,
       email: newUser[0].email,
       isAdmin: newUser[0].isAdmin,
+
       // token: verificationToken,
     });
   } catch (error) {
@@ -105,6 +106,25 @@ const logoutUser = (req, res) => {
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+// @desc    Update user password
+// @route   PATCH /api/users/:userId/password
+// @access  Private
+const updateUserPassword = asyncHandler(async (req, res) => {
+  const { id, password } = req.body;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await db.query(
+    "UPDATE Users SET Password = ?, is_verified = 1 WHERE id = ?",
+    [hashedPassword, id]
+  );
+
+  // Send success response
+  res.status(200).json({
+    is_verified: 1,
+  });
+});
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -242,4 +262,5 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  updateUserPassword,
 };
