@@ -9,6 +9,8 @@ import { calcPrices } from "../utils/calcPrices.js";
 const addOrderItems = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, paymentMethod, userId } = req.body;
 
+  console.log("orderItems", orderItems);
+
   if (orderItems && orderItems.length === 0) {
     res.status(400);
     throw new Error("No order items");
@@ -17,12 +19,15 @@ const addOrderItems = asyncHandler(async (req, res) => {
     const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
       calcPrices(orderItems);
 
-    // Insert order into Orders table
+    console.log("itemsPrice", itemsPrice);
+
+    const shippingAddressString = `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.postalCode}, ${shippingAddress.country}`;
+
     const [orderResult] = await db.query(
       "INSERT INTO Orders (userId, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [
         userId,
-        shippingAddress,
+        shippingAddressString,
         paymentMethod,
         itemsPrice,
         taxPrice,
@@ -30,13 +35,14 @@ const addOrderItems = asyncHandler(async (req, res) => {
         totalPrice,
       ]
     );
+
     const orderId = orderResult.insertId;
 
     // Insert each order item into OrderItems table
     for (const item of orderItems) {
       await db.query(
         "INSERT INTO OrderItems (name, qty, image, price, productId, orderId) VALUES (?, ?, ?, ?, ?, ?)",
-        [item.name, item.qty, item.image, item.price, item.productId, orderId]
+        [item.name, item.qty, item.image, item.price, item.id, orderId]
       );
     }
 
@@ -44,7 +50,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
       orderId,
     ]);
 
-    res.status(201).json(createdOrder);
+    res.status(201).json(createdOrder[0]);
   }
 });
 
@@ -66,7 +72,34 @@ const getMyOrders = asyncHandler(async (req, res) => {
 // @route   GET /api/orders/:id
 // @access  Private
 const getOrderById = asyncHandler(async (req, res) => {
-  throw new Error("getOrderById function not implemented");
+  const orderId = req.params.id;
+  // const userId = req.user.id; // Ensure that the user requesting the order is the owner
+
+  // First, fetch the order to check if it belongs to the user
+  const [order] = await db.query("SELECT * FROM orders WHERE id = ?", [
+    orderId,
+  ]);
+
+  if (order.length === 0) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  // Then, perform a JOIN operation to get all items associated with the order
+  const [orderItems] = await db.query(
+    "SELECT * FROM orderitems WHERE orderId = ?",
+    [orderId]
+  );
+
+  // Combine the order and order items data
+  const fullOrder = {
+    ...order[0],
+    orderItems: orderItems,
+  };
+
+  console.log(fullOrder);
+
+  res.json(fullOrder);
 });
 
 // @desc    Update order to paid
