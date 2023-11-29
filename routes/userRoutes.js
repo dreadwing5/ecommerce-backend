@@ -19,7 +19,7 @@ router.route("/").post(registerUser).get(protect, admin, getUsers);
 router.post("/auth", authUser);
 router.post("/logout", logoutUser);
 
-router.route("/profile/updateUserPassword").patch(updateUserPassword);
+router.route("/profile/updateUserPassword").patch(protect, updateUserPassword);
 router
   .route("/profile")
   .get(protect, getUserProfile)

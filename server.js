@@ -14,7 +14,17 @@ const port = process.env.PORT || 5000;
 
 const app = express();
 
-app.use(cors());
+const FRONTEND_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://minimal.vercel.app"
+    : "http://localhost:5173";
+
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true, // To allow cookies to be sent
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

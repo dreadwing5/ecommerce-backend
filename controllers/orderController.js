@@ -61,10 +61,19 @@ const addOrderItems = asyncHandler(async (req, res) => {
 // @route   GET /api/orders/myorders
 // @access  Private
 const getMyOrders = asyncHandler(async (req, res) => {
-  const userId = req.user.id; // The user ID should be retrieved from the auth middleware
+  const userId = req.user.id;
   const [orders] = await db.query("SELECT * FROM Orders WHERE userId = ?", [
     userId,
   ]);
+
+  for (const order of orders) {
+    const [orderItems] = await db.query(
+      "SELECT * FROM OrderItems WHERE orderId = ?",
+      [order.id]
+    );
+    order.orderItems = orderItems;
+  }
+
   res.json(orders);
 });
 

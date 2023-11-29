@@ -1,19 +1,21 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "./asyncHandler.js";
+import db from "../config/db.js";
 
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   // Read JWT from the 'jwt' cookie
+
   token = req.cookies.jwt;
 
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      const [users] = await db
-        .promise()
-        .query("SELECT * FROM Users WHERE id = ? LIMIT 1", [decoded.id]);
+      const [users] = await db.query(
+        "SELECT * FROM Users WHERE id = ? LIMIT 1",
+        [decoded.userId]
+      );
       const user = users[0];
 
       if (!user) {

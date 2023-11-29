@@ -2,9 +2,9 @@ import asyncHandler from "../middleware/asyncHandler.js";
 import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
 // import { sendVerificationEmail } from "../utils/sendEmail.js";
-// import User from "../models/userModel.js";
 import db from "../config/db.js";
 import bcrypt from "bcryptjs";
+
 // @desc    Auth user & get token
 // @route   POST /api/users/auth
 // @access  Public
@@ -22,7 +22,7 @@ const authUser = asyncHandler(async (req, res) => {
 
   // You should have a function to check the hashed password against the provided one
   if (user && (await matchPassword(password, user.password))) {
-    generateToken(res, user.id);
+    const token = generateToken(res, user.id);
 
     res.json({
       id: user.id,
@@ -30,7 +30,7 @@ const authUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       is_verified: user.is_verified,
-      token: req.token,
+      token,
     });
   } else {
     res.status(401);
