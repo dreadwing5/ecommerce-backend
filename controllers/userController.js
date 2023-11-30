@@ -29,6 +29,7 @@ const authUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone,
       is_verified: user.is_verified,
       token,
     });
@@ -42,7 +43,7 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, phone } = req.body;
 
   const [existingUsers] = await db.query(
     "SELECT * FROM Users WHERE email = ?",
@@ -58,11 +59,10 @@ const registerUser = asyncHandler(async (req, res) => {
   const tempPassword = Math.random().toString(36).slice(-8);
   const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-  await db.query("INSERT INTO Users (name, email, Password) VALUES (?, ?, ?)", [
-    name,
-    email,
-    hashedPassword,
-  ]);
+  await db.query(
+    "INSERT INTO Users (name, email, phone, Password) VALUES (?, ?, ?,?)",
+    [name, email, phone, hashedPassword]
+  );
 
   const [newUser] = await db.query("SELECT * FROM Users WHERE email = ?", [
     email,
@@ -84,6 +84,7 @@ const registerUser = asyncHandler(async (req, res) => {
       id: newUser[0].id,
       name: newUser[0].name,
       email: newUser[0].email,
+      phone: newUser[0].phone,
       isAdmin: newUser[0].isAdmin,
 
       // token: verificationToken,

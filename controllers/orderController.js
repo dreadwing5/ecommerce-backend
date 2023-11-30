@@ -7,7 +7,8 @@ import { calcPrices } from "../utils/calcPrices.js";
 // @route   POST /api/orders
 // @access  Private
 const addOrderItems = asyncHandler(async (req, res) => {
-  const { orderItems, shippingAddress, paymentMethod, userId } = req.body;
+  const { orderItems, shippingAddress, billingAddress, paymentMethod, userId } =
+    req.body;
 
   console.log("orderItems", orderItems);
 
@@ -22,12 +23,13 @@ const addOrderItems = asyncHandler(async (req, res) => {
     console.log("itemsPrice", itemsPrice);
 
     const shippingAddressString = `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.postalCode}, ${shippingAddress.country}`;
-
+    const billingAddressString = `${billingAddress.address}, ${billingAddress.city}, ${billingAddress.postalCode}, ${billingAddress.country}`;
     const [orderResult] = await db.query(
-      "INSERT INTO Orders (userId, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Orders (userId, shippingAddress, billingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?,? )",
       [
         userId,
         shippingAddressString,
+        billingAddressString,
         paymentMethod,
         itemsPrice,
         taxPrice,
