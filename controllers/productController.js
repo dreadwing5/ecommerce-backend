@@ -32,14 +32,16 @@ const createProduct = asyncHandler(async (req, res) => {
   const [rows] = await db.query("Select * from Products where name = ?", [
     name,
   ]);
-  if (rows.length) res.send("Product already Exists!!!");
+  if (rows.length) throw new Error("Product already exists");
   else {
     await db.query(
       "INSERT INTO Products (name,image,brand,category,description) VALUES (?,?,?,?,?)",
       [name, image, brand, category, description]
     );
   }
-  res.send("Product created successfully");
+
+  res.json(rows[0]);
+
   // throw new Error("createProduct function not implemented");
 });
 
@@ -50,7 +52,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   const [rows] = await db.query("SELECT * FROM Products WHERE id = ?", [
     req.params.id,
   ]);
-  if (!rows.length) res.send("Product Not Found");
+  if (!rows.length) throw new Error("Product not found");
   const { name, image, brand, category, description } = req.body;
 
   try {
@@ -59,7 +61,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       [name, image, brand, category, description, req.params.id]
     );
 
-    res.send("Product Updated Successfully");
+    res.json(rows[0]);
   } catch (err) {
     throw new Error("updateProduct function not complete");
   }
@@ -69,6 +71,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
 const deleteProduct = asyncHandler(async (req, res) => {
+  console.log(req.params.id);
   try {
     const [result] = await db.query("DELETE FROM Products WHERE id = ?", [
       req.params.id,
@@ -76,13 +79,14 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
     if (result.affectedRows === 0) {
       console.log("No product found with the specified ID.");
-      res.status(404).send("product not found.");
+      throw new Error("No product found with the specified ID.");
     } else {
       console.log("Product deleted successfully.");
+      res.json({ message: "Product deleted successfully." });
     }
   } catch (error) {
     console.error("Error during the delete operation:", error);
-    res.status(500).send("An error occurred.");
+    throw new Error("deleteProduct function not complete");
   }
 });
 

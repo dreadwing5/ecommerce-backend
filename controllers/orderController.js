@@ -113,25 +113,98 @@ const getOrderById = asyncHandler(async (req, res) => {
   res.json(fullOrder);
 });
 
-// @desc    Update order to paid
-// @route   PUT /api/orders/:id/pay
+// @desc    Cancel order
+// @route   PUT /api/orders/:id/cancel
 // @access  Private
-const updateOrderToPaid = asyncHandler(async (req, res) => {
-  throw new Error("updateOrderToPaid function not implemented");
-});
+const cancelOrder = asyncHandler(async (req, res) => {
+  console.log("cancelOrder", req.params.id);
+  const orderId = req.params.id;
+  const userId = req.user.id; // Assuming req.user is set after authentication
+  // Fetch the order from the database
+  const [order] = await db.query("SELECT * FROM Orders WHERE id = ?", [
+    orderId,
+  ]);
 
-// @desc    Update order to delivered
-// @route   PUT /api/orders/:id/deliver
-// @access  Private/Admin
-const updateOrderToDelivered = asyncHandler(async (req, res) => {
-  throw new Error("updateOrderToDelivered function not implemented");
+  // Check if the order can be cancelled (e.g., not already shipped or cancelled)
+  if (order.status === "Shipped" || order.status === "Cancelled") {
+    res.status(400);
+    throw new Error("Order cannot be cancelled at this stage.");
+  }
+
+  // Update the order status to 'Cancelled'
+  await db.query("UPDATE Orders SET orderStatus = 'Cancelled' WHERE id = ?", [
+    orderId,
+  ]);
+
+  res.status(200).json({ message: "Order cancelled successfully." });
 });
 
 // @desc    Get all orders
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-  throw new Error("getOrders function not implemented");
+  const [orders] = await db.query("SELECT * FROM Orders");
+
+  // Optionally, you can join with other tables (e.g., users) to get more information
+  // about each order, depending on your application's requirements.
+
+  res.json(orders);
+});
+
+// @desc    Update order to shipped
+// @route   PUT /api/orders/:id/ship
+// @access  Private/Admin
+const updateOrderToShipped = asyncHandler(async (req, res) => {
+  const orderId = req.params.id;
+  // Add Admin check here if needed
+
+  const [order] = await db.query("SELECT * FROM Orders WHERE id = ?", [
+    orderId,
+  ]);
+
+  if (order.length === 0) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (order[0].orderStatus !== "Placed") {
+    res.status(400);
+    throw new Error("Order cannot be shipped in its current state");
+  }
+
+  await db.query("UPDATE Orders SET orderStatus = 'Shipped' WHERE id = ?", [
+    orderId,
+  ]);
+
+  res.status(200).json({ message: "Order marked as shipped successfully." });
+});
+
+// @desc    Update order to delivered
+// @route   PUT /api/orders/:id/deliver
+// @access  Private/Admin
+const updateOrderToDelivered = asyncHandler(async (req, res) => {
+  const orderId = req.params.id;
+  // Add Admin check here if needed
+
+  const [order] = await db.query("SELECT * FROM Orders WHERE id = ?", [
+    orderId,
+  ]);
+
+  if (order.length === 0) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (order[0].orderStatus !== "Shipped") {
+    res.status(400);
+    throw new Error("Order cannot be marked as delivered until it is shipped");
+  }
+
+  await db.query("UPDATE Orders SET orderStatus = 'Delivered' WHERE id = ?", [
+    orderId,
+  ]);
+
+  res.status(200).json({ message: "Order marked as delivered successfully." });
 });
 
 // Export all functions
@@ -139,8 +212,8 @@ export {
   addOrderItems,
   getMyOrders,
   getOrderById,
-  updateOrderToPaid,
+  updateOrderToShipped,
   updateOrderToDelivered,
   getOrders,
-  // ... other exported functions
+  cancelOrder,
 };

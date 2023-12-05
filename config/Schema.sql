@@ -1,18 +1,18 @@
-CREATE
-or
-Alter TABLE Users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(255) NOT NULL,
-    password VARCHAR(255),
-    isAdmin TINYINT NOT NULL DEFAULT 0,
-    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    verification_code VARCHAR(255),
-    code_valid_until TIMESTAMP,
-    is_verified TINYINT NOT NULL DEFAULT 0
-);
+CREATE TABLE
+    Users (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        phone VARCHAR(255) NOT NULL,
+        password VARCHAR(255),
+        isAdmin TINYINT NOT NULL DEFAULT 0,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        addresses JSON,
+        verification_code VARCHAR(255),
+        code_valid_until TIMESTAMP,
+        is_verified TINYINT NOT NULL DEFAULT 0
+    );
 
 CREATE TABLE
     Products (
@@ -58,7 +58,7 @@ CREATE TABLE
         isPaid TINYINT NOT NULL DEFAULT 0,
         paidAt TIMESTAMP NULL,
         isDelivered TINYINT NOT NULL DEFAULT 0,
-        orderStatus VARCHAR(255) DEFAULT 'In-transit',
+        orderStatus ENUM ('Placed', 'Shipped', 'Delivered', 'Cancelled') NOT NULL DEFAULT 'Placed',
         deliveredAt TIMESTAMP NULL,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
