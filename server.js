@@ -14,17 +14,29 @@ const port = process.env.PORT || 5000;
 
 const app = express();
 
-const FRONTEND_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://minimal.vercel.app"
-    : "http://localhost:5173";
+const allowedOrigins = [
+  "https://minimal.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  // Add other URLs here
+];
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true, // To allow cookies to be sent
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -79,6 +91,4 @@ app.post("/api/support/issue", async (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () =>
-  console.log(`Server running in  mode on port ${port}`)
-);
+app.listen(port, () => console.log(`Server running in  mode on port ${port}`));
