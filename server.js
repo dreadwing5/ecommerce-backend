@@ -45,7 +45,7 @@ app.use(cookieParser());
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/service", serviceRoutes);
+app.use("/api/issues", serviceRoutes);
 
 app.get("/", async (req, res) => {
   try {
