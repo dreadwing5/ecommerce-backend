@@ -20,6 +20,7 @@ router.post("/auth", authUser);
 router.post("/logout", logoutUser);
 
 router.route("/profile/updateUserPassword").patch(protect, updateUserPassword);
+
 router
   .route("/profile")
   .get(protect, getUserProfile)
@@ -28,7 +29,7 @@ router
 router
   .route("/:id")
   .delete(protect, admin, deleteUser)
-  .get(protect, admin, getUserById)
+  .get(protect, getUserById)
   .put(protect, updateUser);
 
 export default router;
