@@ -6,6 +6,7 @@ dotenv.config();
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import serviceRoutes from "./routes/serviceRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import db from "./config/db.js";
 import sendEmail from "./utils/sendEmail.js";
@@ -44,10 +45,7 @@ app.use(cookieParser());
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
-
-// app.get("/", (req, res) => {
-// 	res.send("API is running...");
-// });
+app.use("/api/service", serviceRoutes);
 
 app.get("/", async (req, res) => {
   try {
@@ -55,21 +53,6 @@ app.get("/", async (req, res) => {
     console.log(rows, fields);
   } catch (err) {
     console.log(err);
-  }
-});
-
-app.post("/send-email", async (req, res) => {
-  try {
-    await sendEmail({
-      email: req.body.email,
-      subject: "Test Email",
-      message:
-        "This is a test email to verify the functionality of the sendEmail API.",
-    });
-    res.json({ message: "Email sent successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to send email." });
   }
 });
 
