@@ -160,6 +160,43 @@ const cancelOrder = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Order cancelled successfully." });
 });
 
+// @desc    Submit feedback for an order
+// @route   POST /api/orders/:id/feedback
+// @access  Private
+const submitFeedback = asyncHandler(async (req, res) => {
+  const { rating, description } = req.body;
+  const orderId = req.params.id;
+  const userId = req.user.id; // Assuming req.user is set after authentication
+
+  console.log("submitFeedback", req.body);
+
+  // Validate input
+  if (!rating || !description) {
+    res.status(400);
+    throw new Error("Rating and description are required.");
+  }
+
+  // Check if the order exists and belongs to the user
+  const [order] = await db.query(
+    "SELECT * FROM Orders WHERE id = ? AND userId = ?",
+    [orderId, userId]
+  );
+  if (order.length === 0) {
+    res.status(404);
+    throw new Error(
+      "Order not found or you do not have permission to access it."
+    );
+  }
+
+  // Update the order with feedback details
+  await db.query(
+    "UPDATE Orders SET feedbackRating = ?, feedbackDescription = ? WHERE id = ?",
+    [rating, description, orderId]
+  );
+
+  res.status(200).json({ message: "Feedback submitted successfully." });
+});
+
 // @desc    Get all orders
 // @route   GET /api/orders
 // @access  Private/Admin
@@ -237,4 +274,5 @@ export {
   updateOrderToDelivered,
   getOrders,
   cancelOrder,
+  submitFeedback,
 };
