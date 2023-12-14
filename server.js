@@ -16,10 +16,9 @@ const port = process.env.PORT || 5000;
 const app = express();
 
 const allowedOrigins = [
-  "https://minimal.vercel.app",
+  "http://3.91.202.182:3000",
   "http://localhost:5173",
   "http://localhost:3000",
-  // Add other URLs here
 ];
 
 app.use(
